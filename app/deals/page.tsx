@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, LayoutGrid, List } from 'lucide-react';
 import DealsGrid from '@/components/DealsGrid';
 import DealCard from '@/components/DealCard';
 import FilterSidebar, { type Filters } from '@/components/FilterSidebar';
+import AdBanner from '@/components/AdBanner';
 import type { CheapSharkDeal } from '@/lib/types';
 
 export default function DealsPage() {
@@ -79,8 +80,9 @@ export default function DealsPage() {
       </div>
 
       <div className="flex flex-col gap-6 lg:flex-row">
-        <aside className="w-full lg:w-64 shrink-0">
+        <aside className="w-full lg:w-64 shrink-0 space-y-4">
           <FilterSidebar filters={filters} onChange={handleFilterChange} />
+          <AdBanner slot="sidebar" className="hidden lg:flex" />
         </aside>
 
         <div className="flex-1 space-y-6">

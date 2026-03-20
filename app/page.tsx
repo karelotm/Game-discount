@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { TrendingUp, Award, Flame } from 'lucide-react';
 import SaleCountdown from '@/components/SaleCountdown';
 import DealsGrid from '@/components/DealsGrid';
+import AdBanner from '@/components/AdBanner';
 import type { CheapSharkDeal } from '@/lib/types';
 import Link from 'next/link';
 
@@ -49,6 +50,9 @@ export default function HomePage() {
         <DealsGrid deals={topDeals} loading={loading} />
       </section>
 
+      {/* Ad between sections */}
+      <AdBanner slot="in-feed" className="mx-auto" />
+
       {/* Top Rated on Sale */}
       <section>
         <div className="mb-4 flex items-center justify-between">
@@ -62,6 +66,9 @@ export default function HomePage() {
         </div>
         <DealsGrid deals={topRated} loading={loading} />
       </section>
+
+      {/* Ad before CTA */}
+      <AdBanner slot="banner-bottom" className="mx-auto" />
 
       {/* Upcoming Sales CTA */}
       <section className="glass-card p-6 text-center">

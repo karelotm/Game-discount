@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Clock, Star } from 'lucide-react';
 import type { CheapSharkDeal } from '@/lib/types';
 import { formatPrice, getRatingColor } from '@/lib/utils';
+import { getAffiliateLink, trackClick } from '@/lib/affiliate';
 
 interface DealCardProps {
   deal: CheapSharkDeal;
@@ -10,7 +11,7 @@ interface DealCardProps {
 export default function DealCard({ deal }: DealCardProps) {
   const discount = Math.round(parseFloat(deal.savings));
   const rating = parseInt(deal.steamRatingPercent);
-  const href = deal.steamAppID ? `/game/${deal.steamAppID}` : `https://www.cheapshark.com/redirect?dealID=${deal.dealID}`;
+  const href = deal.steamAppID ? `/game/${deal.steamAppID}` : getAffiliateLink(deal.dealID);
   const isExternal = !deal.steamAppID;
 
   return (
@@ -60,14 +61,24 @@ export default function DealCard({ deal }: DealCardProps) {
           </div>
         )}
 
-        <Link
-          href={href}
-          target={isExternal ? '_blank' : undefined}
-          rel={isExternal ? 'noopener noreferrer' : undefined}
-          className="mt-1 block w-full rounded-md bg-cyan/10 py-1.5 text-center text-xs font-semibold text-cyan hover:bg-cyan/20 transition-colors"
-        >
-          View Deal →
-        </Link>
+        {isExternal ? (
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackClick(deal.dealID, 'Steam')}
+            className="mt-1 block w-full rounded-md bg-cyan/10 py-1.5 text-center text-xs font-semibold text-cyan hover:bg-cyan/20 transition-colors"
+          >
+            View Deal →
+          </a>
+        ) : (
+          <Link
+            href={href}
+            className="mt-1 block w-full rounded-md bg-cyan/10 py-1.5 text-center text-xs font-semibold text-cyan hover:bg-cyan/20 transition-colors"
+          >
+            View Deal →
+          </Link>
+        )}
       </div>
     </div>
   );

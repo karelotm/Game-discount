@@ -6,6 +6,7 @@ import { ArrowLeft, Monitor, Apple, Cpu, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import PriceHistoryChart from '@/components/PriceHistoryChart';
 import StoreComparison from '@/components/StoreComparison';
+import AdBanner from '@/components/AdBanner';
 import type { SteamAppDetails, CheapSharkGameDetail } from '@/lib/types';
 
 interface GameData {
@@ -203,6 +204,9 @@ export default function GameDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Ad placement */}
+      <AdBanner slot="banner-top" className="mx-auto" />
 
       {/* Screenshots */}
       {game.screenshots && game.screenshots.length > 0 && (

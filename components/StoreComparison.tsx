@@ -1,6 +1,7 @@
 'use client';
 
 import { ExternalLink } from 'lucide-react';
+import { getAffiliateLink, trackClick } from '@/lib/affiliate';
 
 interface StoreDeal {
   storeID: string;
@@ -51,9 +52,10 @@ export default function StoreComparison({ deals }: StoreComparisonProps) {
         return (
           <a
             key={deal.dealID}
-            href={`https://www.cheapshark.com/redirect?dealID=${deal.dealID}`}
+            href={getAffiliateLink(deal.dealID)}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackClick(deal.dealID, deal.storeName || STORE_NAMES[deal.storeID] || 'Unknown')}
             className={`flex items-center justify-between rounded-lg border p-3 transition-colors ${
               isBest
                 ? 'border-cyan/30 bg-cyan/5 hover:bg-cyan/10'

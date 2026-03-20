@@ -31,19 +31,23 @@ steam-deals-hub/
 │       ├── games/route.ts         # Proxy → CheapShark /games
 │       ├── game-detail/route.ts   # Proxy → Steam /api/appdetails
 │       ├── featured/route.ts      # Proxy → Steam /api/featuredcategories
-│       └── search/route.ts        # Proxy → CheapShark /games?title=
+│       ├── search/route.ts        # Proxy → CheapShark /games?title=
+│       └── track-click/route.ts   # Affiliate click tracking (logs to console/DB)
 ├── components/
 │   ├── Navbar.tsx                 # Sticky nav with search bar, mobile hamburger
 │   ├── Footer.tsx                 # Attribution footer
-│   ├── DealCard.tsx               # Individual deal card (grid view)
+│   ├── DealCard.tsx               # Individual deal card with affiliate links
 │   ├── DealsGrid.tsx              # Responsive grid container with skeleton loading
 │   ├── FilterSidebar.tsx          # Filter form (sort, price, metacritic, rating)
 │   ├── SearchBar.tsx              # Debounced autocomplete search (300ms)
 │   ├── PriceHistoryChart.tsx      # Recharts line chart for price trends
-│   ├── StoreComparison.tsx        # Multi-store price table with "BEST" badge
+│   ├── StoreComparison.tsx        # Multi-store price table with affiliate tracking
 │   ├── SaleCountdown.tsx          # Live countdown timer for current/next sale
-│   └── SaleCalendar.tsx           # Sale event cards with status badges
+│   ├── SaleCalendar.tsx           # Sale event cards with status badges
+│   ├── AdBanner.tsx               # Ad placement component (placeholder until provider configured)
+│   └── AffiliateLink.tsx          # Reusable affiliate link with click tracking
 ├── lib/
+│   ├── affiliate.ts               # Affiliate URL builder + click tracking helpers
 │   ├── cheapshark.ts              # CheapShark API client (browser-side, calls /api/ routes)
 │   ├── steam.ts                   # Steam API client (unused — steam calls go through /api/)
 │   ├── types.ts                   # All TypeScript interfaces
@@ -164,9 +168,37 @@ All routes in `app/api/` follow these patterns:
 - `www.cheapshark.com` (CheapShark thumbnails)
 - Also uses `shared.fastly.steamstatic.com` (may need adding if images break)
 
+## Monetization
+
+### Affiliate Links (CheapShark)
+- All outbound "buy" links go through `getAffiliateLink()` in `lib/affiliate.ts`
+- URL format: `https://www.cheapshark.com/redirect?dealID={id}&tag=steamdealshub`
+- Click tracking fires a beacon to `/api/track-click` (currently logs to console; connect to DB when ready)
+- `DealCard.tsx` and `StoreComparison.tsx` both use affiliate links with tracking
+- `AffiliateLink.tsx` is a reusable component for any future affiliate link placements
+
+### Ad Placements
+- `AdBanner.tsx` renders placeholder ad slots that activate when `NEXT_PUBLIC_ADSENSE_PUB_ID` is set
+- Current placement slots:
+  - `in-feed` — Homepage between Top Deals and Top Rated sections
+  - `banner-bottom` — Homepage before the sales calendar CTA
+  - `sidebar` — Deals page sidebar below filters (desktop only)
+  - `banner-top` — Game detail page between price comparison and screenshots
+- To activate ads:
+  1. Set `NEXT_PUBLIC_ADSENSE_PUB_ID` env var with your Google AdSense publisher ID
+  2. Add the AdSense script tag to `layout.tsx` `<head>`
+  3. Update AdBanner component to render `<ins className="adsbygoogle" />` elements
+- Alternative providers: Carbon Ads, Nitropay, Playwire (see AdBanner.tsx comments)
+
+### Click Tracking API (`/api/track-click`)
+- Receives POST from `navigator.sendBeacon()` — non-blocking, fire-and-forget
+- Logs `dealID`, `storeName`, timestamp, IP, and UA to Vercel function logs
+- To persist: connect to Vercel KV, Upstash Redis, or Vercel Postgres
+
 ## Environment Variables
 ```
 NEXT_PUBLIC_SITE_URL=https://game-discount-nine.vercel.app
+NEXT_PUBLIC_ADSENSE_PUB_ID=          # Google AdSense publisher ID (optional, enables ads)
 STEAM_COUNTRY_CODE=us
 ```
 
