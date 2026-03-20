@@ -1,0 +1,81 @@
+{
+  "sales": [
+    {
+      "name": "Spring Sale 2026",
+      "startDate": "2026-03-19T17:00:00Z",
+      "endDate": "2026-03-26T17:00:00Z",
+      "type": "seasonal",
+      "description": "Annual spring sale across all categories"
+    },
+    {
+      "name": "Summer Sale 2026",
+      "startDate": "2026-06-25T17:00:00Z",
+      "endDate": "2026-07-09T17:00:00Z",
+      "type": "seasonal",
+      "description": "The biggest mid-year sale event"
+    },
+    {
+      "name": "Autumn Sale 2026",
+      "startDate": "2026-10-01T17:00:00Z",
+      "endDate": "2026-10-08T17:00:00Z",
+      "type": "seasonal",
+      "description": "Fall sale with discounts across all genres"
+    },
+    {
+      "name": "Winter Sale 2026",
+      "startDate": "2026-12-17T18:00:00Z",
+      "endDate": "2027-01-04T18:00:00Z",
+      "type": "seasonal",
+      "description": "The biggest annual sale event of the year"
+    },
+    {
+      "name": "Steam Next Fest (February)",
+      "startDate": "2026-02-23T18:00:00Z",
+      "endDate": "2026-03-02T18:00:00Z",
+      "type": "fest",
+      "description": "Play demos and discover upcoming games"
+    },
+    {
+      "name": "Steam Strategy Fest",
+      "startDate": "2026-04-27T17:00:00Z",
+      "endDate": "2026-05-04T17:00:00Z",
+      "type": "fest",
+      "description": "Celebrate strategy games with demos and discounts"
+    },
+    {
+      "name": "Steam Next Fest (June)",
+      "startDate": "2026-06-09T17:00:00Z",
+      "endDate": "2026-06-16T17:00:00Z",
+      "type": "fest",
+      "description": "Play demos and discover upcoming games"
+    },
+    {
+      "name": "Steam Survival Fest",
+      "startDate": "2026-07-28T17:00:00Z",
+      "endDate": "2026-08-04T17:00:00Z",
+      "type": "fest",
+      "description": "Discounts on survival and crafting games"
+    },
+    {
+      "name": "Steam RPG Fest",
+      "startDate": "2026-09-14T17:00:00Z",
+      "endDate": "2026-09-21T17:00:00Z",
+      "type": "fest",
+      "description": "Role-playing games showcased with special discounts"
+    },
+    {
+      "name": "Steam Next Fest (October)",
+      "startDate": "2026-10-12T17:00:00Z",
+      "endDate": "2026-10-19T17:00:00Z",
+      "type": "fest",
+      "description": "Play demos and discover upcoming games"
+    },
+    {
+      "name": "Steam Scream Fest",
+      "startDate": "2026-10-26T17:00:00Z",
+      "endDate": "2026-11-02T17:00:00Z",
+      "type": "fest",
+      "description": "Halloween-themed horror game sale"
+    }
+  ]
+}
