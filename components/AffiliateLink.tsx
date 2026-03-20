@@ -5,6 +5,7 @@ import { getAffiliateLink, trackClick } from '@/lib/affiliate';
 
 interface AffiliateLinkProps {
   dealID: string;
+  storeID?: string;
   storeName?: string;
   children: React.ReactNode;
   className?: string;
@@ -13,6 +14,7 @@ interface AffiliateLinkProps {
 
 export default function AffiliateLink({
   dealID,
+  storeID,
   storeName = 'Unknown',
   children,
   className = '',
@@ -24,7 +26,7 @@ export default function AffiliateLink({
 
   return (
     <a
-      href={getAffiliateLink(dealID)}
+      href={getAffiliateLink(dealID, storeID, storeName)}
       target="_blank"
       rel="noopener noreferrer"
       onClick={handleClick}

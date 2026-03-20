@@ -11,7 +11,7 @@ interface DealCardProps {
 export default function DealCard({ deal }: DealCardProps) {
   const discount = Math.round(parseFloat(deal.savings));
   const rating = parseInt(deal.steamRatingPercent);
-  const href = deal.steamAppID ? `/game/${deal.steamAppID}` : getAffiliateLink(deal.dealID);
+  const href = deal.steamAppID ? `/game/${deal.steamAppID}` : getAffiliateLink(deal.dealID, deal.storeID, deal.title, deal.steamAppID);
   const isExternal = !deal.steamAppID;
 
   return (

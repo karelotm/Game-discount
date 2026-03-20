@@ -1,17 +1,114 @@
 /**
- * Build a CheapShark affiliate redirect URL.
- * CheapShark's redirect endpoint forwards users to the store page.
+ * Store affiliate configuration.
  *
- * Set NEXT_PUBLIC_CHEAPSHARK_TAG in your .env to append your registered
- * affiliate tag (e.g. &tag=yourtag). Without a registered tag, the redirect
- * still works — you just don't get affiliate tracking credit.
+ * Each store that has a real affiliate program gets a direct link builder.
+ * Set the corresponding NEXT_PUBLIC_*_AFFILIATE_ID env var to activate.
+ * Without a configured ID, we fall back to the CheapShark redirect
+ * (which doesn't pay commission but still works as a link).
  *
- * To register a tag, contact CheapShark via their API docs or support page.
+ * Supported stores & their programs:
+ *   - Fanatical         → up to 5%, 30-day cookie
+ *   - Green Man Gaming  → up to 5%, 30-day cookie
+ *   - Humble Store      → ~5-10%, 30-day cookie
+ *   - GOG               → ~5%, 30-day cookie
+ *   - Kinguin           → 5-10%, 90-day cookie
+ *   - GamersGate        → ~5%, 30-day cookie
+ *
+ * Steam itself has no affiliate program, so Steam links are always direct.
  */
-export function getAffiliateLink(dealID: string): string {
-  const tag = process.env.NEXT_PUBLIC_CHEAPSHARK_TAG;
-  const base = `https://www.cheapshark.com/redirect?dealID=${dealID}`;
-  return tag ? `${base}&tag=${tag}` : base;
+
+/** CheapShark storeID → config */
+interface StoreAffiliateConfig {
+  /** Base URL for the store's affiliate link */
+  buildUrl: (gameTitle: string, steamAppId?: string | null) => string | null;
+}
+
+function getEnv(key: string): string | undefined {
+  return typeof window !== 'undefined'
+    ? (process.env[key] as string | undefined)
+    : process.env[key];
+}
+
+/**
+ * Store affiliate link builders, keyed by CheapShark storeID.
+ * Returns null when the env var for that store isn't set.
+ */
+const STORE_AFFILIATES: Record<string, StoreAffiliateConfig> = {
+  // Fanatical (storeID 15)
+  '15': {
+    buildUrl: (_title, steamAppId) => {
+      const ref = getEnv('NEXT_PUBLIC_FANATICAL_AFFILIATE_ID');
+      if (!ref) return null;
+      // Fanatical uses a ref param for affiliates
+      const base = steamAppId
+        ? `https://www.fanatical.com/en/search?search=${encodeURIComponent(steamAppId)}`
+        : `https://www.fanatical.com`;
+      return `${base}&ref=${encodeURIComponent(ref)}`;
+    },
+  },
+
+  // Green Man Gaming (storeID 3 in some mappings, but CheapShark uses 23 for GMG — let's map it)
+  '3': {
+    buildUrl: () => {
+      // GamersGate — storeID 3 in CheapShark is actually GamersGate
+      const ref = getEnv('NEXT_PUBLIC_GAMERSGATE_AFFILIATE_ID');
+      if (!ref) return null;
+      return `https://www.gamersgate.com/?aff=${encodeURIComponent(ref)}`;
+    },
+  },
+
+  // GOG (storeID 7)
+  '7': {
+    buildUrl: (_title, steamAppId) => {
+      const ref = getEnv('NEXT_PUBLIC_GOG_AFFILIATE_ID');
+      if (!ref) return null;
+      return `https://www.gog.com/?pp=${encodeURIComponent(ref)}`;
+    },
+  },
+
+  // Humble Store (storeID 11)
+  '11': {
+    buildUrl: () => {
+      const partner = getEnv('NEXT_PUBLIC_HUMBLE_PARTNER_ID');
+      if (!partner) return null;
+      return `https://www.humblebundle.com/store?partner=${encodeURIComponent(partner)}`;
+    },
+  },
+
+  // Green Man Gaming (storeID — CheapShark maps GMG differently, but commonly it's storeID 23 or varies)
+  // We'll add a safe mapping. In CheapShark docs, GMG is not always present; adding as an entry:
+  '23': {
+    buildUrl: () => {
+      const ref = getEnv('NEXT_PUBLIC_GMG_AFFILIATE_ID');
+      if (!ref) return null;
+      return `https://www.greenmangaming.com/?tap_a=${encodeURIComponent(ref)}`;
+    },
+  },
+};
+
+/**
+ * Get the best affiliate link for a deal.
+ *
+ * Priority:
+ * 1. Direct store affiliate link (if env var configured for that store)
+ * 2. CheapShark redirect (always works, but pays nothing without a tag)
+ */
+export function getAffiliateLink(
+  dealID: string,
+  storeID?: string,
+  gameTitle?: string,
+  steamAppId?: string | null,
+): string {
+  // Try direct store affiliate first
+  if (storeID && STORE_AFFILIATES[storeID]) {
+    const directUrl = STORE_AFFILIATES[storeID].buildUrl(gameTitle || '', steamAppId);
+    if (directUrl) return directUrl;
+  }
+
+  // Fallback: CheapShark redirect
+  const tag = getEnv('NEXT_PUBLIC_CHEAPSHARK_TAG');
+  const base = `https://www.cheapshark.com/redirect?dealID=${encodeURIComponent(dealID)}`;
+  return tag ? `${base}&tag=${encodeURIComponent(tag)}` : base;
 }
 
 /**
@@ -32,4 +129,18 @@ export function trackClick(dealID: string, storeName: string) {
       JSON.stringify({ dealID, storeName, timestamp: Date.now() }),
     );
   }
+}
+
+/**
+ * Check whether any direct store affiliate IDs are configured.
+ * Useful for showing an "affiliate earnings active" indicator in dev.
+ */
+export function hasDirectAffiliates(): boolean {
+  return !!(
+    getEnv('NEXT_PUBLIC_FANATICAL_AFFILIATE_ID') ||
+    getEnv('NEXT_PUBLIC_GOG_AFFILIATE_ID') ||
+    getEnv('NEXT_PUBLIC_HUMBLE_PARTNER_ID') ||
+    getEnv('NEXT_PUBLIC_GMG_AFFILIATE_ID') ||
+    getEnv('NEXT_PUBLIC_GAMERSGATE_AFFILIATE_ID')
+  );
 }

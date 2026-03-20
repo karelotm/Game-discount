@@ -52,7 +52,7 @@ export default function StoreComparison({ deals }: StoreComparisonProps) {
         return (
           <a
             key={deal.dealID}
-            href={getAffiliateLink(deal.dealID)}
+            href={getAffiliateLink(deal.dealID, deal.storeID, deal.storeName)}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackClick(deal.dealID, deal.storeName || STORE_NAMES[deal.storeID] || 'Unknown')}
