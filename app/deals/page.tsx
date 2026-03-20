@@ -86,6 +86,9 @@ export default function DealsPage() {
         </aside>
 
         <div className="flex-1 space-y-6">
+          {/* Mobile ad above deals (hidden on desktop where sidebar ad is shown) */}
+          <AdBanner slot="in-feed" className="flex lg:hidden mx-auto" />
+
           {view === 'grid' ? (
             <DealsGrid deals={deals} loading={loading} />
           ) : (

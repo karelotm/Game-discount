@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type AdSlot = 'banner-top' | 'sidebar' | 'in-feed' | 'banner-bottom';
 
@@ -9,15 +9,37 @@ interface AdBannerProps {
   className?: string;
 }
 
-const SLOT_SIZES: Record<AdSlot, { width: number; height: number; label: string }> = {
-  'banner-top': { width: 728, height: 90, label: 'Leaderboard' },
-  'sidebar': { width: 300, height: 250, label: 'Medium Rectangle' },
-  'in-feed': { width: 728, height: 90, label: 'In-Feed' },
-  'banner-bottom': { width: 728, height: 90, label: 'Bottom Banner' },
+interface AdSize {
+  width: number;
+  height: number;
+  label: string;
+}
+
+// Desktop and mobile sizes per slot following standard IAB ad formats
+const SLOT_SIZES: Record<AdSlot, { desktop: AdSize; mobile: AdSize }> = {
+  'banner-top': {
+    desktop: { width: 728, height: 90, label: 'Leaderboard' },
+    mobile: { width: 320, height: 50, label: 'Mobile Banner' },
+  },
+  'sidebar': {
+    desktop: { width: 300, height: 250, label: 'Medium Rectangle' },
+    mobile: { width: 300, height: 250, label: 'Medium Rectangle' },
+  },
+  'in-feed': {
+    desktop: { width: 728, height: 90, label: 'In-Feed' },
+    mobile: { width: 320, height: 100, label: 'Mobile In-Feed' },
+  },
+  'banner-bottom': {
+    desktop: { width: 728, height: 90, label: 'Bottom Banner' },
+    mobile: { width: 320, height: 50, label: 'Mobile Banner' },
+  },
 };
 
+const MOBILE_BREAKPOINT = 768;
+
 /**
- * Ad banner placeholder that will load real ads once an ad provider is configured.
+ * Responsive ad banner placeholder that adapts to mobile and desktop viewports.
+ * Loads real ads once an ad provider is configured.
  *
  * To activate with Google AdSense:
  *   1. Add your AdSense script to layout.tsx <head>
@@ -30,8 +52,17 @@ const SLOT_SIZES: Record<AdSlot, { width: number; height: number; label: string 
  */
 export default function AdBanner({ slot, className = '' }: AdBannerProps) {
   const adRef = useRef<HTMLDivElement>(null);
-  const config = SLOT_SIZES[slot];
+  const [isMobile, setIsMobile] = useState(false);
   const pubId = process.env.NEXT_PUBLIC_ADSENSE_PUB_ID;
+
+  useEffect(() => {
+    function checkMobile() {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    }
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     // When a real ad provider is configured, initialize ads here.
@@ -41,12 +72,15 @@ export default function AdBanner({ slot, className = '' }: AdBannerProps) {
     // }
   }, [pubId]);
 
+  const config = isMobile ? SLOT_SIZES[slot].mobile : SLOT_SIZES[slot].desktop;
+
   return (
     <div
       ref={adRef}
       className={`flex items-center justify-center rounded-lg border border-white/5 bg-surface/50 text-muted text-xs overflow-hidden ${className}`}
       style={{ minHeight: config.height, maxWidth: config.width, width: '100%' }}
       data-ad-slot={slot}
+      data-ad-format={isMobile ? 'mobile' : 'desktop'}
     >
       {/* Placeholder — replaced by real ads once provider is configured */}
       {!pubId && (
