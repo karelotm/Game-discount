@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
 
@@ -17,12 +19,14 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const res = await fetch(`https://www.cheapshark.com/api/1.0/deals?${params}`, {
-      next: { revalidate: 300 },
-    });
+    const res = await fetch(`https://www.cheapshark.com/api/1.0/deals?${params}`);
+    if (!res.ok) {
+      return NextResponse.json({ error: `CheapShark returned ${res.status}` }, { status: 502 });
+    }
     const data = await res.json();
     return NextResponse.json(data);
-  } catch {
+  } catch (err) {
+    console.error('Deals fetch error:', err);
     return NextResponse.json({ error: 'Failed to fetch deals' }, { status: 500 });
   }
 }

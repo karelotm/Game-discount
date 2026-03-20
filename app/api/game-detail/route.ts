@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const appids = searchParams.get('appids');
@@ -12,12 +14,15 @@ export async function GET(req: NextRequest) {
 
   try {
     const res = await fetch(
-      `https://store.steampowered.com/api/appdetails/?appids=${appids}&cc=${cc}`,
-      { next: { revalidate: 3600 } }
+      `https://store.steampowered.com/api/appdetails/?appids=${appids}&cc=${cc}`
     );
+    if (!res.ok) {
+      return NextResponse.json({ error: `Steam returned ${res.status}` }, { status: 502 });
+    }
     const data = await res.json();
     return NextResponse.json(data);
-  } catch {
+  } catch (err) {
+    console.error('Game detail fetch error:', err);
     return NextResponse.json({ error: 'Failed to fetch game details' }, { status: 500 });
   }
 }
