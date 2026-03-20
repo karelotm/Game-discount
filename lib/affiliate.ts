@@ -1,12 +1,17 @@
-const AFFILIATE_TAG = 'steamdealshub';
-
 /**
  * Build a CheapShark affiliate redirect URL.
- * CheapShark's redirect endpoint forwards users to the store page,
- * earning commission through their affiliate partnerships.
+ * CheapShark's redirect endpoint forwards users to the store page.
+ *
+ * Set NEXT_PUBLIC_CHEAPSHARK_TAG in your .env to append your registered
+ * affiliate tag (e.g. &tag=yourtag). Without a registered tag, the redirect
+ * still works — you just don't get affiliate tracking credit.
+ *
+ * To register a tag, contact CheapShark via their API docs or support page.
  */
 export function getAffiliateLink(dealID: string): string {
-  return `https://www.cheapshark.com/redirect?dealID=${encodeURIComponent(dealID)}&tag=${AFFILIATE_TAG}`;
+  const tag = process.env.NEXT_PUBLIC_CHEAPSHARK_TAG;
+  const base = `https://www.cheapshark.com/redirect?dealID=${dealID}`;
+  return tag ? `${base}&tag=${tag}` : base;
 }
 
 /**

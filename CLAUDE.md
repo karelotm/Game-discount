@@ -172,7 +172,7 @@ All routes in `app/api/` follow these patterns:
 
 ### Affiliate Links (CheapShark)
 - All outbound "buy" links go through `getAffiliateLink()` in `lib/affiliate.ts`
-- URL format: `https://www.cheapshark.com/redirect?dealID={id}&tag=steamdealshub`
+- URL format: `https://www.cheapshark.com/redirect?dealID={id}` (appends `&tag=X` if `NEXT_PUBLIC_CHEAPSHARK_TAG` is set)
 - Click tracking fires a beacon to `/api/track-click` (currently logs to console; connect to DB when ready)
 - `DealCard.tsx` and `StoreComparison.tsx` both use affiliate links with tracking
 - `AffiliateLink.tsx` is a reusable component for any future affiliate link placements
@@ -199,6 +199,7 @@ All routes in `app/api/` follow these patterns:
 ```
 NEXT_PUBLIC_SITE_URL=https://game-discount-nine.vercel.app
 NEXT_PUBLIC_ADSENSE_PUB_ID=          # Google AdSense publisher ID (optional, enables ads)
+NEXT_PUBLIC_CHEAPSHARK_TAG=          # CheapShark affiliate tag (optional, register at cheapshark.com)
 STEAM_COUNTRY_CODE=us
 ```
 
