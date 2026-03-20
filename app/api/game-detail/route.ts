@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
+const headers = {
+  'User-Agent': 'SteamDealsHub/1.0 (Next.js; Vercel)',
+  'Accept': 'application/json',
+};
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const appids = searchParams.get('appids');
@@ -14,7 +19,8 @@ export async function GET(req: NextRequest) {
 
   try {
     const res = await fetch(
-      `https://store.steampowered.com/api/appdetails/?appids=${appids}&cc=${cc}`
+      `https://store.steampowered.com/api/appdetails/?appids=${appids}&cc=${cc}`,
+      { headers }
     );
     if (!res.ok) {
       return NextResponse.json({ error: `Steam returned ${res.status}` }, { status: 502 });

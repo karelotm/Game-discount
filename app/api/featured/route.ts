@@ -2,12 +2,18 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
+const headers = {
+  'User-Agent': 'SteamDealsHub/1.0 (Next.js; Vercel)',
+  'Accept': 'application/json',
+};
+
 export async function GET() {
   const cc = process.env.STEAM_COUNTRY_CODE || 'us';
 
   try {
     const res = await fetch(
-      `https://store.steampowered.com/api/featuredcategories/?cc=${cc}`
+      `https://store.steampowered.com/api/featuredcategories/?cc=${cc}`,
+      { headers }
     );
     if (!res.ok) {
       return NextResponse.json({ error: `Steam returned ${res.status}` }, { status: 502 });

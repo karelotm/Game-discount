@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
+const headers = {
+  'User-Agent': 'SteamDealsHub/1.0 (Next.js; Vercel)',
+  'Accept': 'application/json',
+};
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const query = searchParams.get('q');
@@ -12,7 +17,8 @@ export async function GET(req: NextRequest) {
 
   try {
     const res = await fetch(
-      `https://www.cheapshark.com/api/1.0/games?title=${encodeURIComponent(query)}&limit=20`
+      `https://www.cheapshark.com/api/1.0/games?title=${encodeURIComponent(query)}&limit=20`,
+      { headers }
     );
     if (!res.ok) {
       return NextResponse.json({ error: `CheapShark returned ${res.status}` }, { status: 502 });
