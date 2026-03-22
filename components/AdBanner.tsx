@@ -37,22 +37,16 @@ const SLOT_SIZES: Record<AdSlot, { desktop: AdSize; mobile: AdSize }> = {
 
 const MOBILE_BREAKPOINT = 768;
 
-/**
- * Responsive ad banner placeholder that adapts to mobile and desktop viewports.
- * Loads real ads once an ad provider is configured.
- *
- * To activate with Google AdSense:
- *   1. Add your AdSense script to layout.tsx <head>
- *   2. Replace the placeholder below with <ins className="adsbygoogle" ... />
- *   3. Set NEXT_PUBLIC_ADSENSE_PUB_ID in env vars
- *
- * To activate with Carbon Ads:
- *   1. Get a placement ID from carbonads.net
- *   2. Replace placeholder with their <script> embed
- */
+declare global {
+  interface Window {
+    adsbygoogle?: Array<Record<string, unknown>>;
+  }
+}
+
 export default function AdBanner({ slot, className = '' }: AdBannerProps) {
   const adRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const pushed = useRef(false);
   const pubId = process.env.NEXT_PUBLIC_ADSENSE_PUB_ID;
 
   useEffect(() => {
@@ -65,11 +59,14 @@ export default function AdBanner({ slot, className = '' }: AdBannerProps) {
   }, []);
 
   useEffect(() => {
-    // When a real ad provider is configured, initialize ads here.
-    // Example for AdSense:
-    // if (pubId && window.adsbygoogle) {
-    //   window.adsbygoogle.push({});
-    // }
+    if (pubId && !pushed.current) {
+      try {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+        pushed.current = true;
+      } catch {
+        // AdSense may not be loaded yet or blocker is active
+      }
+    }
   }, [pubId]);
 
   const config = isMobile ? SLOT_SIZES[slot].mobile : SLOT_SIZES[slot].desktop;
@@ -82,8 +79,16 @@ export default function AdBanner({ slot, className = '' }: AdBannerProps) {
       data-ad-slot={slot}
       data-ad-format={isMobile ? 'mobile' : 'desktop'}
     >
-      {/* Placeholder — replaced by real ads once provider is configured */}
-      {!pubId && (
+      {pubId ? (
+        <ins
+          className="adsbygoogle"
+          style={{ display: 'block', width: '100%', height: config.height }}
+          data-ad-client={`ca-${pubId}`}
+          data-ad-slot={slot}
+          data-ad-format="auto"
+          data-full-width-responsive="true"
+        />
+      ) : (
         <span className="opacity-40 select-none">Ad Space — {config.label}</span>
       )}
     </div>
