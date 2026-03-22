@@ -6,7 +6,9 @@ import Footer from '@/components/Footer';
 import './globals.css';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://steam-deals-hub.coupons';
-const adsensePubId = process.env.NEXT_PUBLIC_ADSENSE_PUB_ID;
+const rawPubId = process.env.NEXT_PUBLIC_ADSENSE_PUB_ID || '';
+// Normalise: accept "ca-pub-xxx", "pub-xxx", or raw "xxx"
+const adClient = rawPubId.startsWith('ca-') ? rawPubId : rawPubId ? `ca-${rawPubId}` : '';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -66,10 +68,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        {adsensePubId && (
+        {adClient && (
           <Script
             async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-${adsensePubId}`}
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adClient}`}
             crossOrigin="anonymous"
             strategy="afterInteractive"
           />
