@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Gamepad2, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import SearchBar from './SearchBar';
 
 export default function Navbar() {
@@ -12,7 +12,8 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-2 font-heading text-xl font-bold text-cyan">
-          <Gamepad2 className="h-6 w-6" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="Steam Deals Hub" className="h-8 w-8 rounded-lg" />
           <span>Steam Deals Hub</span>
         </Link>
 
