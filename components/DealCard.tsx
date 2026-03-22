@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import { Clock, Star } from 'lucide-react';
+import { Clock, Star, BadgePercent } from 'lucide-react';
 import type { CheapSharkDeal } from '@/lib/types';
 import { formatPrice, getRatingColor } from '@/lib/utils';
-import { getAffiliateLink, trackClick } from '@/lib/affiliate';
+import { getAffiliateLink, trackClick, isAffiliateStore } from '@/lib/affiliate';
 
 interface DealCardProps {
   deal: CheapSharkDeal;
@@ -13,6 +13,7 @@ export default function DealCard({ deal }: DealCardProps) {
   const rating = parseInt(deal.steamRatingPercent);
   const href = deal.steamAppID ? `/game/${deal.steamAppID}` : getAffiliateLink(deal.dealID, deal.storeID, deal.title, deal.steamAppID);
   const isExternal = !deal.steamAppID;
+  const isAffiliate = isAffiliateStore(deal.storeID);
 
   return (
     <div className="glass-card overflow-hidden group">
@@ -26,6 +27,12 @@ export default function DealCard({ deal }: DealCardProps) {
         {discount > 0 && (
           <span className="absolute top-2 left-2 rounded-md bg-magenta px-2 py-0.5 text-xs font-bold text-white glow-magenta">
             -{discount}%
+          </span>
+        )}
+        {isAffiliate && (
+          <span className="absolute top-2 right-2 flex items-center gap-0.5 rounded-md bg-green-500/90 px-1.5 py-0.5 text-[10px] font-bold text-white">
+            <BadgePercent className="h-3 w-3" />
+            Best Deal
           </span>
         )}
       </div>

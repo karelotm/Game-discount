@@ -144,3 +144,16 @@ export function hasDirectAffiliates(): boolean {
     getEnv('NEXT_PUBLIC_GAMERSGATE_AFFILIATE_ID')
   );
 }
+
+/**
+ * Store IDs that have affiliate programs (commission-paying).
+ * These stores earn revenue when users purchase through our links.
+ */
+export const AFFILIATE_STORE_IDS = new Set(['3', '7', '11', '15', '23']);
+
+/**
+ * Check if a store pays affiliate commission.
+ */
+export function isAffiliateStore(storeID: string): boolean {
+  return AFFILIATE_STORE_IDS.has(storeID);
+}
