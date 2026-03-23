@@ -22,7 +22,8 @@ export function getAffiliateLink(
   }
 
   // All other stores → resolve via our backend proxy
-  return `/api/store-redirect?dealID=${encodeURIComponent(dealID)}`;
+  // dealID from CheapShark is already URL-safe (base64 with %2B etc.) — don't double-encode
+  return `/api/store-redirect?dealID=${dealID}`;
 }
 
 /**
