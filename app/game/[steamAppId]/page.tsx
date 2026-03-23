@@ -208,7 +208,7 @@ export default function GameDetailPage() {
 
         <div className="glass-card p-5">
           <h2 className="font-heading text-lg font-bold text-white mb-4">Compare Prices</h2>
-          <StoreComparison deals={storeDeals} />
+          <StoreComparison deals={storeDeals} steamAppId={steamAppId} />
           {storeDeals.length === 0 && (
             <p className="text-sm text-muted">No price comparison data available.</p>
           )}

@@ -87,11 +87,12 @@ const STORE_AFFILIATES: Record<string, StoreAffiliateConfig> = {
 };
 
 /**
- * Get the best affiliate link for a deal.
+ * Get the best link for a deal.
  *
  * Priority:
  * 1. Direct store affiliate link (if env var configured for that store)
- * 2. CheapShark redirect (always works, but pays nothing without a tag)
+ * 2. Direct Steam store link (storeID=1 + steamAppId available)
+ * 3. CheapShark redirect (last resort — unreliable for expired dealIDs)
  */
 export function getAffiliateLink(
   dealID: string,
@@ -105,7 +106,13 @@ export function getAffiliateLink(
     if (directUrl) return directUrl;
   }
 
-  // Fallback: CheapShark redirect
+  // For Steam deals, link directly to the Steam store page.
+  // CheapShark redirect often fails (expired dealIDs → cheapshark.com homepage).
+  if (storeID === '1' && steamAppId) {
+    return `https://store.steampowered.com/app/${steamAppId}`;
+  }
+
+  // Fallback: CheapShark redirect (may redirect to homepage if dealID is stale)
   const tag = getEnv('NEXT_PUBLIC_CHEAPSHARK_TAG');
   const base = `https://www.cheapshark.com/redirect?dealID=${encodeURIComponent(dealID)}`;
   return tag ? `${base}&tag=${encodeURIComponent(tag)}` : base;

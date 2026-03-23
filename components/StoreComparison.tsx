@@ -14,6 +14,7 @@ interface StoreDeal {
 
 interface StoreComparisonProps {
   deals: StoreDeal[];
+  steamAppId?: string | null;
 }
 
 const STORE_NAMES: Record<string, string> = {
@@ -64,7 +65,7 @@ function smartSort(deals: StoreDeal[]): StoreDeal[] {
   return sorted;
 }
 
-export default function StoreComparison({ deals }: StoreComparisonProps) {
+export default function StoreComparison({ deals, steamAppId }: StoreComparisonProps) {
   if (deals.length === 0) return null;
 
   const sorted = smartSort(deals);
@@ -83,7 +84,7 @@ export default function StoreComparison({ deals }: StoreComparisonProps) {
         return (
           <a
             key={deal.dealID}
-            href={getAffiliateLink(deal.dealID, deal.storeID, deal.storeName)}
+            href={getAffiliateLink(deal.dealID, deal.storeID, deal.storeName, steamAppId)}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackClick(deal.dealID, deal.storeName || STORE_NAMES[deal.storeID] || 'Unknown')}
