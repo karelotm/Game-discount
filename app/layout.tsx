@@ -6,7 +6,7 @@ import Footer from '@/components/Footer';
 import { AuthProvider } from '@/components/AuthProvider';
 import './globals.css';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://steam-deals-hub.coupons';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://game-discount-nine.vercel.app';
 const rawPubId = process.env.NEXT_PUBLIC_ADSENSE_PUB_ID || '';
 // Normalise: accept "ca-pub-xxx", "pub-xxx", or raw "xxx"
 const adClient = rawPubId.startsWith('ca-') ? rawPubId : rawPubId ? `ca-${rawPubId}` : '';

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://steam-deals-hub.coupons';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://game-discount-nine.vercel.app';
 
 export default function robots(): MetadataRoute.Robots {
   return {
