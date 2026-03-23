@@ -159,18 +159,26 @@ const STORE_CONFIG: Record<string, StoreConfig> = {
 };
 
 /**
- * Get the best link for a deal.
+ * Get a direct store link for a deal.
  *
- * Currently uses CheapShark redirect for all deals.
- * Direct store / affiliate links are disabled for now.
+ * Affiliate params are disabled for now — links go straight to the
+ * store search/product page without any tracking tags.
  */
 export function getAffiliateLink(
-  dealID: string,
-  _storeID?: string,
-  _gameTitle?: string,
-  _steamAppId?: string | null,
+  _dealID: string,
+  storeID?: string,
+  gameTitle?: string,
+  steamAppId?: string | null,
 ): string {
-  return `https://www.cheapshark.com/redirect?dealID=${encodeURIComponent(dealID)}`;
+  const title = gameTitle || '';
+  const config = storeID ? STORE_CONFIG[storeID] : undefined;
+
+  if (config) {
+    return config.directUrl(title, steamAppId);
+  }
+
+  // Unknown store — fall back to Steam search
+  return `https://store.steampowered.com/search/?term=${encodeURIComponent(title)}`;
 }
 
 /**
