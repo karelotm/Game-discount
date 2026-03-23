@@ -166,15 +166,10 @@ const STORE_CONFIG: Record<string, StoreConfig> = {
 };
 
 /**
- * Get the best link for a deal.
- *
- * Priority:
- * 1. Direct store affiliate link (if env var configured for that store)
- * 2. Direct store link via search URL (always works, never stale)
- * 3. CheapShark redirect (only for unknown stores we haven't mapped)
+ * Get the direct store search/fallback link for a store.
+ * Used by /api/redirect as fallback when CheapShark redirect fails.
  */
-export function getAffiliateLink(
-  dealID: string,
+export function getDirectStoreLink(
   storeID?: string,
   gameTitle?: string,
   steamAppId?: string | null,
@@ -183,19 +178,45 @@ export function getAffiliateLink(
   const config = storeID ? STORE_CONFIG[storeID] : undefined;
 
   if (config) {
-    // Try affiliate link first (earns commission)
+    // Try affiliate link first
     if (config.affiliateUrl) {
       const affiliateLink = config.affiliateUrl(title, steamAppId);
       if (affiliateLink) return affiliateLink;
     }
-    // Direct store link (no commission but always works)
     return config.directUrl(title, steamAppId);
   }
 
-  // Unknown store — CheapShark redirect as absolute last resort
-  const tag = getEnv('NEXT_PUBLIC_CHEAPSHARK_TAG');
-  const base = `https://www.cheapshark.com/redirect?dealID=${encodeURIComponent(dealID)}`;
-  return tag ? `${base}&tag=${encodeURIComponent(tag)}` : base;
+  // Unknown store — Steam search as generic fallback
+  return `https://store.steampowered.com/search/?term=${encodeURIComponent(title)}`;
+}
+
+/**
+ * Get the best link for a deal.
+ *
+ * For Steam deals with a known steamAppId, links directly to the store page.
+ * For everything else, routes through /api/redirect which resolves the
+ * CheapShark redirect server-side to get the exact product page URL.
+ * If CheapShark fails, /api/redirect falls back to a direct store search link.
+ */
+export function getAffiliateLink(
+  dealID: string,
+  storeID?: string,
+  gameTitle?: string,
+  steamAppId?: string | null,
+): string {
+  // Steam deals with a known app ID → link directly (no redirect needed)
+  if (storeID === '1' && steamAppId) {
+    return `https://store.steampowered.com/app/${steamAppId}`;
+  }
+
+  // All other deals → route through our redirect proxy which resolves
+  // CheapShark's redirect server-side to get the exact product page
+  const params = new URLSearchParams({ dealID });
+  if (storeID) params.set('storeID', storeID);
+  if (gameTitle) params.set('title', gameTitle);
+  if (steamAppId) params.set('steamAppId', steamAppId);
+
+  return `/api/redirect?${params.toString()}`;
 }
 
 /**
