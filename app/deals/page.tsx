@@ -10,9 +10,11 @@ import type { CheapSharkDeal } from '@/lib/types';
 
 export default function DealsPage() {
   const [deals, setDeals] = useState<CheapSharkDeal[]>([]);
+  const [filteredDeals, setFilteredDeals] = useState<CheapSharkDeal[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [view, setView] = useState<'grid' | 'list'>('grid');
+  const [genreMap, setGenreMap] = useState<Record<string, string[]>>({});
   const [filters, setFilters] = useState<Filters>({
     sortBy: 'Deal Rating',
     upperPrice: '',
@@ -20,6 +22,7 @@ export default function DealsPage() {
     metacritic: '',
     steamRating: '',
     storeID: '1',
+    genres: [],
   });
 
   const fetchDeals = useCallback(async () => {
@@ -39,21 +42,69 @@ export default function DealsPage() {
     try {
       const res = await fetch(`/api/deals?${params}`);
       const data = await res.json();
-      setDeals(Array.isArray(data) ? data : []);
+      const list = Array.isArray(data) ? data : [];
+      setDeals(list);
+
+      // Fetch genres for deals that have steamAppID
+      const steamIds = list
+        .map((d: CheapSharkDeal) => d.steamAppID)
+        .filter((id): id is string => !!id);
+
+      if (steamIds.length > 0) {
+        try {
+          const genreRes = await fetch(`/api/genres?steamAppIds=${steamIds.join(',')}`);
+          if (genreRes.ok) {
+            const genres = await genreRes.json();
+            setGenreMap((prev) => ({ ...prev, ...genres }));
+          }
+        } catch {
+          // Genre fetch is non-critical
+        }
+      }
     } catch {
       setDeals([]);
     }
     setLoading(false);
-  }, [page, filters]);
+  }, [page, filters.sortBy, filters.storeID, filters.upperPrice, filters.lowerPrice, filters.metacritic, filters.steamRating]);
 
   useEffect(() => {
     fetchDeals();
   }, [fetchDeals]);
 
+  // Client-side genre filtering
+  useEffect(() => {
+    if (filters.genres.length === 0) {
+      setFilteredDeals(deals);
+      return;
+    }
+
+    const filtered = deals.filter((deal) => {
+      if (!deal.steamAppID) return false;
+      const genres = genreMap[deal.steamAppID];
+      if (!genres) return false;
+      // Match if the game has ANY of the selected genres
+      return filters.genres.some((g) =>
+        genres.some((cached) => cached.toLowerCase().includes(g.toLowerCase()))
+      );
+    });
+    setFilteredDeals(filtered);
+  }, [deals, filters.genres, genreMap]);
+
   function handleFilterChange(newFilters: Filters) {
+    // Only reset page if server-side filters changed
+    const serverChanged =
+      newFilters.sortBy !== filters.sortBy ||
+      newFilters.storeID !== filters.storeID ||
+      newFilters.upperPrice !== filters.upperPrice ||
+      newFilters.lowerPrice !== filters.lowerPrice ||
+      newFilters.metacritic !== filters.metacritic ||
+      newFilters.steamRating !== filters.steamRating;
+
     setFilters(newFilters);
-    setPage(0);
+    if (serverChanged) setPage(0);
   }
+
+  const displayDeals = filteredDeals;
 
   return (
     <div className="space-y-6">
@@ -89,8 +140,14 @@ export default function DealsPage() {
           {/* Mobile ad above deals (hidden on desktop where sidebar ad is shown) */}
           <AdBanner slot="in-feed" className="flex lg:hidden mx-auto" />
 
+          {filters.genres.length > 0 && !loading && (
+            <p className="text-xs text-muted">
+              Showing {displayDeals.length} of {deals.length} deals matching selected genres
+            </p>
+          )}
+
           {view === 'grid' ? (
-            <DealsGrid deals={deals} loading={loading} />
+            <DealsGrid deals={displayDeals} loading={loading} />
           ) : (
             <div className="space-y-3">
               {loading
@@ -103,7 +160,7 @@ export default function DealsPage() {
                       </div>
                     </div>
                   ))
-                : deals.map((deal) => (
+                : displayDeals.map((deal) => (
                     <div key={deal.dealID} className="glass-card flex items-center gap-4 p-3">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img

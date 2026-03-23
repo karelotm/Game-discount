@@ -3,6 +3,7 @@ import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { AuthProvider } from '@/components/AuthProvider';
 import './globals.css';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://steam-deals-hub.coupons';
@@ -82,9 +83,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="min-h-screen bg-background text-white antialiased">
-        <Navbar />
-        <main className="mx-auto max-w-7xl px-4 py-6">{children}</main>
-        <Footer />
+        <AuthProvider>
+          <Navbar />
+          <main className="mx-auto max-w-7xl px-4 py-6">{children}</main>
+          <Footer />
+        </AuthProvider>
         <Analytics />
       </body>
     </html>

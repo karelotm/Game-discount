@@ -6,6 +6,7 @@ import { ArrowLeft, Monitor, Apple, Cpu, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import PriceHistoryChart from '@/components/PriceHistoryChart';
 import StoreComparison from '@/components/StoreComparison';
+import WatchlistButton from '@/components/WatchlistButton';
 import AdBanner from '@/components/AdBanner';
 import type { SteamAppDetails, CheapSharkGameDetail } from '@/lib/types';
 
@@ -162,14 +163,23 @@ export default function GameDetailPage() {
             <span className="text-xl font-bold text-green-400 font-mono">Free to Play</span>
           )}
 
-          <a
-            href={`https://store.steampowered.com/app/${steamAppId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-cyan px-5 py-2 text-sm font-bold text-background hover:bg-cyan-dark transition-colors glow-cyan"
-          >
-            View on Steam <ExternalLink className="h-3.5 w-3.5" />
-          </a>
+          <div className="flex items-center gap-3">
+            <a
+              href={`https://store.steampowered.com/app/${steamAppId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-cyan px-5 py-2 text-sm font-bold text-background hover:bg-cyan-dark transition-colors glow-cyan"
+            >
+              View on Steam <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+            <WatchlistButton
+              gameTitle={game.name}
+              steamAppId={steamAppId}
+              currentPrice={game.price_overview ? String(game.price_overview.final / 100) : null}
+              thumb={game.header_image}
+              className="rounded-lg bg-white/5 px-3 py-2"
+            />
+          </div>
         </div>
       </div>
 

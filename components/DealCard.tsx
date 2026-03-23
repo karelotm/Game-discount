@@ -3,6 +3,7 @@ import { Clock, Star, BadgePercent } from 'lucide-react';
 import type { CheapSharkDeal } from '@/lib/types';
 import { formatPrice, getRatingColor } from '@/lib/utils';
 import { getAffiliateLink, trackClick, isAffiliateStore } from '@/lib/affiliate';
+import WatchlistButton from './WatchlistButton';
 
 interface DealCardProps {
   deal: CheapSharkDeal;
@@ -38,9 +39,18 @@ export default function DealCard({ deal }: DealCardProps) {
       </div>
 
       <div className="p-3 space-y-2">
-        <h3 className="font-heading text-sm font-semibold text-white truncate leading-tight">
-          {deal.title}
-        </h3>
+        <div className="flex items-start justify-between gap-1">
+          <h3 className="font-heading text-sm font-semibold text-white truncate leading-tight">
+            {deal.title}
+          </h3>
+          <WatchlistButton
+            gameTitle={deal.title}
+            steamAppId={deal.steamAppID}
+            cheapsharkGameId={deal.gameID}
+            currentPrice={deal.salePrice}
+            thumb={deal.thumb}
+          />
+        </div>
 
         {rating > 0 && (
           <div className="flex items-center gap-1 text-xs">
