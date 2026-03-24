@@ -7,7 +7,7 @@ import { AuthProvider } from '@/components/AuthProvider';
 import './globals.css';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://steam-deals-hub.coupons';
-const rawPubId = process.env.NEXT_PUBLIC_ADSENSE_PUB_ID || '';
+const rawPubId = process.env.NEXT_PUBLIC_ADSENSE_PUB_ID || 'ca-pub-3315807953502049';
 // Normalise: accept "ca-pub-xxx", "pub-xxx", or raw "xxx"
 const adClient = rawPubId.startsWith('ca-') ? rawPubId : rawPubId ? `ca-${rawPubId}` : '';
 
